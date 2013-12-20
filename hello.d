@@ -20,6 +20,7 @@ int main()
 	const string className = "HelloWinClass";
 	HWND hwnd;
 	MSG  msg;
+	HMODULE hInstance = GetModuleHandleA(null);
 
 	WNDCLASSA wndclass;
 
