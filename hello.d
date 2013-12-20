@@ -3,11 +3,12 @@ import core.sys.windows.windows;
 
 pragma(lib, "gdi32.lib");
 
-extern (Windows) int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int main()
 {
 	const string className = "HelloWinClass";
 	HWND hwnd;
 	MSG  msg;
+	HMODULE hInstance = GetModuleHandleA(null);
 
 	WNDCLASSA wndclass;
 
