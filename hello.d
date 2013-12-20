@@ -1,15 +1,29 @@
 import core.runtime;
 import core.sys.windows.windows;
+import core.stdc.stdio;
+
+import tb.core;
+import tb.opengl;
+
+import std.utf;
+import std.string;
 
 pragma(lib, "gdi32.lib");
 
-extern (Windows) int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int main()
 {
+	auto t = "世界こんにちは！";
+	MessageBoxW(null, t.toUTF16z(), "Code", MB_ICONERROR);
+
+	auto f = Runtime.loadLibrary("opengl32.dll");
+	
 	const string className = "HelloWinClass";
 	HWND hwnd;
 	MSG  msg;
 
 	WNDCLASSA wndclass;
+
+	auto hInstance = GetModuleHandleW(null);
 
 	wndclass.style			= CS_HREDRAW | CS_VREDRAW;
 	wndclass.lpfnWndProc	= cast(WNDPROC)&WndProc;
