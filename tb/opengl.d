@@ -19,6 +19,15 @@ private
 				if (!*t) throw new Exception("GetProc failed: " ~ name);
 			}
 		}
+
+		template GetProcEx(T)
+		{
+			void Bind(T* t, string name)
+			{
+				*t = cast(T)wgl.GetProcAddress(name.toStringz());
+				if (!*t) throw new Exception("GetProcEx failed: " ~ name);
+			}
+		}
 	}
 }
 
@@ -34,9 +43,6 @@ static this()
 		GetProc!(typeof(wgl.GetCurrentDC)).Bind(&wgl.GetCurrentDC, "wglGetCurrentDC");
 		GetProc!(typeof(wgl.GetCurrentContext)).Bind(&wgl.GetCurrentContext, "wglGetCurrentContext");
 		GetProc!(typeof(wgl.DeleteContext)).Bind(&wgl.DeleteContext, "wglDeleteContext");
-
-		GetProc!(typeof(gl.ClearColor)).Bind(&gl.ClearColor, "glClearColor");
-		GetProc!(typeof(gl.Clear)).Bind(&gl.Clear, "glClear");
 	}
 	else version(OSX)
 	{
@@ -81,8 +87,8 @@ version (Windows)
 
 	alias void*		HRC;
 
-	extern (Windows) int ChoosePixelFormat(in HDC hdc, in PIXELFORMATDESCRIPTOR* ppfd);
-	extern (Windows) bool SwapBuffers(in HDC hdc);
+	extern (Windows) int ChoosePixelFormat(HDC hdc, PIXELFORMATDESCRIPTOR* ppfd);
+	extern (Windows) bool SwapBuffers(HDC hdc);
 }
 
 static struct ClearMask
@@ -95,17 +101,31 @@ static struct ClearMask
 	}
 }
 
+static struct DataType
+{
+	enum : int
+	{
+		Byte = 0x1400,
+		UnsignedByte = 0x1401,
+		Short = 0x1402,
+		UnsignedShort = 0x1403,
+		Int = 0x1404,
+		UnsignedInt = 0x1405,
+		Float = 0x1406
+	}
+}
+
 version (Windows)
 static struct wgl
 {
 	extern (Windows) nothrow
 	{
-		static HRC function(void*) CreateContext;
-		static void* function(LPCSTR) GetProcAddress;
-		static bool function(HDC, HRC) MakeCurrent;
+		static HRC function(in void*) CreateContext;
+		static void* function(in LPCSTR) GetProcAddress;
+		static bool function(in HDC, in HRC) MakeCurrent;
 		static HDC function() GetCurrentDC;
 		static HRC function() GetCurrentContext;
-		static bool function(HRC) DeleteContext;
+		static bool function(in HRC) DeleteContext;
 	}
 }
 
@@ -115,5 +135,31 @@ static struct gl
 	{
 		static void function(float r, float g, float b, float a) ClearColor;
 		static void function(int mask) Clear;
+		static void function(int n, uint* textures) GenTextures;
+
+		// ext
+		static void function(int n, uint* buffers) GenBuffers;
+		static void function(int n, uint* buffers) DeleteBuffers;
+
+		static void function(int size, int dataType, int stride, void* pointer) VertexPointer;
+		static void function(int dataType, int stride, void* pointer) NormalPointer;
+		static void function(int size, int dataType, int stride, void* pointer) TexCoordPointer;
+		static void function(int size, int dataType, int stride, void* pointer) ColorPointer;
+		static void function(int dataType, int stride, void* pointer) IndexPointer;
+	}
+
+	static void Init()
+	{
+		GetProc!(typeof(gl.GenTextures)).Bind(&gl.GenTextures, "glGenTextures");
+		GetProc!(typeof(gl.ClearColor)).Bind(&gl.ClearColor, "glClearColor");
+		GetProc!(typeof(gl.Clear)).Bind(&gl.Clear, "glClear");
+
+		GetProcEx!(typeof(gl.GenBuffers)).Bind(&gl.GenBuffers, "glGenBuffers");
+		GetProcEx!(typeof(gl.DeleteBuffers)).Bind(&gl.DeleteBuffers, "glDeleteBuffers");
+		GetProcEx!(typeof(gl.VertexPointer)).Bind(&gl.VertexPointer, "glVertexPointer");
+		GetProcEx!(typeof(gl.NormalPointer)).Bind(&gl.NormalPointer, "glNormalPointer");
+		GetProcEx!(typeof(gl.TexCoordPointer)).Bind(&gl.TexCoordPointer, "glTexCoordPointer");
+		GetProcEx!(typeof(gl.ColorPointer)).Bind(&gl.ColorPointer, "glColorPointer");
+		GetProcEx!(typeof(gl.IndexPointer)).Bind(&gl.IndexPointer, "glIndexPointer");
 	}
 }

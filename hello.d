@@ -72,11 +72,13 @@ int main()
 //	string txt = to!string(format);
 //	if (!m) MessageBoxW(null, "世界こんにちは！".toUTF16z(), "Code", MB_ICONERROR);
 
-	ShowWindow(hwnd, SW_SHOWNORMAL);
-	UpdateWindow(hwnd);
-
 	auto hrc = wgl.CreateContext(hdc);
 	wgl.MakeCurrent(hdc, hrc);
+
+	gl.Init(); // invoke before any gl calls
+
+	ShowWindow(hwnd, SW_SHOWNORMAL);
+	UpdateWindow(hwnd);
 	
 	while (GetMessageA(&msg, null, 0, 0))
 	{
