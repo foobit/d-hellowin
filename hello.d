@@ -7,8 +7,6 @@ import std.conv;
 import std.stdio;
 import std.c.windows.windows;
 
-pragma(lib, "gdi32.lib");
-
 HDC hdc;
 
 int main()
